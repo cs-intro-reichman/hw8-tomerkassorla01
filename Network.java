@@ -29,8 +29,12 @@ public class Network {
      *  If there is no such user, returns null.
      *  Notice that the method receives a String, and returns a User object. */
     public User getUser(String name) {
+        if (name == null) {
+            return null;
+        }
+        name = name.substring(0, 1).toUpperCase() + name.substring(1);
         for (int i = 0; i < this.userCount; i++) {
-            if(users[i].getName().equals(name)) {
+            if(users[i].getName().toLowerCase().equals(name.toLowerCase())) {
                 return users[i];
             }
         }
@@ -59,13 +63,14 @@ public class Network {
      *  If any of the two names is not a user in this network,
      *  or if the "follows" addition failed for some reason, returns false. */
     public boolean addFollowee(String name1, String name2) {
-        User user1 = this.getUser(name1), user2 = this.getUser(name2);
-        if ( user1 == null ||  user2 == null) {
+        if (getUser(name1) == null || getUser(name2) == null) {
             return false;
         }
-        user1.addFollowee(name2);
-        user2.addFollowee(name1);
-        return (user1.follows(name2) && user2.follows(name1));
+   
+        if (name1.equals(name2)) {
+           return false;
+       }
+        return getUser(name1).addFollowee(name2);
     }
     
     /** For the user with the given name, recommends another user to follow. The recommended user is
@@ -97,7 +102,13 @@ public class Network {
     /** Computes and returns the name of the most popular user in this network: 
      *  The user who appears the most in the follow lists of all the users. */
     public String mostPopularUser() {
-        String mostPopularUserName = users[0].getName();
+        if (userCount == 0) {
+            return null;
+        }
+        String mostPopularUserName = "";
+        if(users.length >= 1) {
+            mostPopularUserName = users[0].getName();
+        }
         int max = followeeCount(mostPopularUserName), userFolloweeCount = 0;
         for (int i = 1; i < this.userCount; i++) {
             userFolloweeCount = followeeCount(users[i].getName());
@@ -123,9 +134,9 @@ public class Network {
 
     // Returns a textual description of all the users in this network, and who they follow.
     public String toString() {
-        String ans = "Network:\n";
+        String ans = "Network:";
         for (int i = 0; i < userCount; i++) {
-            ans = ans + users[i].toString() + "\n";
+            ans = ans + "\n" + users[i].toString();
         }
        return ans;
     }
